@@ -1,0 +1,395 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+#root {
+  max-width: none !important;
+}
+
+/* Whole screen */
+.lg-root {
+  position: fixed;
+  inset: 0;
+  background: #E8E1F3;
+  overflow: hidden;
+}
+
+/* Background blobs (Figma style curves) */
+.lg-blob {
+  position: absolute;
+  border-radius: 999px;
+  opacity: 0.55;
+}
+
+.lg-blob-1 {
+  width: 720px;
+  height: 720px;
+  left: -260px;
+  top: -240px;
+  background: #D6C8EF;
+}
+
+.lg-blob-2 {
+  width: 900px;
+  height: 900px;
+  right: -420px;
+  top: -120px;
+  background: #DCCFF2;
+}
+
+.lg-blob-3 {
+  width: 780px;
+  height: 780px;
+  right: -260px;
+  bottom: -340px;
+  background: #EDE6FA;
+  opacity: 0.8;
+}
+
+/* Main layout */
+.lg-wrap {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: center;
+  padding: 64px 90px;
+  gap: 40px;
+}
+
+.lg-left {
+  position: relative;
+  min-height: 640px;
+}
+
+
+.lg-brand {
+  position: absolute;
+  left: 5;
+  /* ✅ text stays at left side */
+  top: 80px;
+  margin: 0;
+  font-size: 100px;
+  /* ✅ bigger + bold */
+  font-weight: 500;
+  color: #3a3a3a;
+  letter-spacing: 1px;
+}
+
+.lg-tagline {
+  position: absolute;
+  left: 0;
+  top: 200px;
+
+  margin: 0;
+  font-size: 50px;
+  /* ✅ matches screenshot */
+  line-height: 1.35;
+  font-weight: 300;
+  /* ✅ light text */
+  color: #6a6a6a;
+  /* ✅ softer gray */
+
+  text-align: left;
+  /* ✅ IMPORTANT */
+}
+
+.lg-ill {
+  position: absolute;
+  left: 350px;
+  top: 70px;
+  width: 560px;
+  max-width: none;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+
+  z-index: 20;
+  /* ✅ image on top of container */
+}
+
+
+
+/* RIGHT CARD */
+.lg-card {
+  justify-self: end;
+  width: 520px;
+  max-width: 100%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 34px;
+  padding: 54px 50px;
+  box-shadow: 0 18px 55px rgba(30, 22, 60, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+.lg-title {
+  margin: 0;
+  text-align: center;
+  font-size: 44px;
+  letter-spacing: 3px;
+  color: #4b4b4b;
+}
+
+.lg-quote {
+  margin: 18px auto 34px auto;
+  text-align: center;
+  max-width: 360px;
+  color: #2f2f2f;
+  font-size: 16px;
+}
+
+/* Input with icon inside */
+.lg-field {
+  position: relative;
+  margin-top: 18px;
+}
+
+.lg-input {
+  width: 100%;
+  height: 50px;
+  border-radius: 14px;
+  border: 2px solid rgba(90, 90, 90, 0.25);
+  background: rgba(255, 255, 255, 0.35);
+  padding: 0 56px 0 18px;
+  /* right padding for icon */
+  font-size: 16px;
+  outline: none;
+  color: #222;
+}
+
+.lg-input::placeholder {
+  color: rgba(40, 40, 40, 0.9);
+}
+
+.lg-input:focus {
+  border-color: rgba(140, 110, 210, 0.65);
+  box-shadow: 0 0 0 5px rgba(140, 110, 210, 0.16);
+}
+
+.lg-icon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 22px;
+  height: 22px;
+  color: #111;
+  opacity: 0.95;
+}
+
+.lg-forgot {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.lg-forgot a {
+  color: #8545ff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.lg-forgot a:hover {
+  text-decoration: underline;
+}
+
+.lg-icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+/* Button (small purple like figma) */
+.lg-btn {
+  width: 160px;
+  height: 46px;
+  border: none;
+  border-radius: 12px;
+  margin: 28px auto 0 auto;
+  display: block;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 16px;
+  color: #fff;
+  background: #B08AE2;
+  box-shadow: 0 12px 24px rgba(176, 138, 226, 0.35);
+}
+
+.lg-btn:active {
+  transform: translateY(1px);
+}
+
+/* OR divider */
+.lg-or {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #3b3b3b;
+}
+
+.lg-or span {
+  flex: 1;
+  height: 1px;
+  background: rgba(60, 60, 60, 0.35);
+}
+
+.lg-or p {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+
+
+
+.lg-btn:hover {
+  background: #6b4c97;
+  /* 🔹 darker purple on hover */
+  box-shadow: 0 14px 28px rgba(155, 110, 220, 0.45);
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .lg-wrap {
+    grid-template-columns: 1fr;
+    padding: 40px 22px;
+  }
+
+  .lg-card {
+    justify-self: center;
+  }
+
+  .lg-left {
+    min-height: 520px;
+  }
+
+  .lg-ill {
+    left: 90px;
+    top: 170px;
+    width: 480px;
+  }
+}
+
+@media (max-width: 768px) {
+  .lg-root {
+    overflow-y: auto;
+    /* Allow scrolling on small screens */
+    position: relative;
+    /* Unfix position */
+  }
+
+  .lg-wrap {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .lg-left {
+    display: none;
+    /* Hide illustration on mobile */
+  }
+
+  .lg-card {
+    width: 100%;
+    padding: 30px 20px;
+  }
+
+  .lg-title {
+    font-size: 32px;
+  }
+
+  .lg-blob {
+    display: none;
+    /* Hide blobs on mobile for performance/cleaner look */
+  }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(44, 33, 64, 0.6);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  position: relative;
+  /* Use lg-card styles by default as added in class list, but add animation */
+  animation: slideUp 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #6c757d;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: #2c2140;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.lg-signup-redirect {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+  color: #666;
+}
+
+.lg-signup-redirect a {
+  color: #8545ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.lg-signup-redirect a:hover {
+  text-decoration: underline;
+}

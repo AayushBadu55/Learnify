@@ -1,0 +1,37 @@
+.otp-card {
+    align-items: center;
+    text-align: center;
+}
+
+.otp-sub {
+    font-size: 14px;
+    color: #64748B;
+    margin-bottom: 30px;
+}
+
+.otp-input-area {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.otp-digit {
+    width: 60px;
+    height: 65px;
+    border-radius: 12px;
+    border: 2px solid #E2E8F0;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    background: #F8FAFC;
+    color: #B08AE2;
+    transition: all 0.2s ease;
+}
+
+.otp-digit:focus {
+    border-color: #B08AE2;
+    box-shadow: 0 0 0 4px rgba(176, 138, 226, 0.1);
+    outline: none;
+    background: #fff;
+}

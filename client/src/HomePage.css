@@ -1,0 +1,94 @@
+.home-root {
+  min-height: 100vh;
+  width: 100vw;
+  background: #dcc5f5;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #2c2140;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Section */
+.home-main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  z-index: 1;
+  position: relative;
+  flex: 1;
+}
+
+.home-card {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  backdrop-filter: blur(5px);
+  aspect-ratio: 4/3;
+  /* Ensure consistent aspect ratio */
+  display: flex;
+  flex-direction: column;
+}
+
+.home-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(133, 69, 255, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.home-card-img {
+  width: 100%;
+  height: 80%;
+  object-fit: cover;
+  transition: transform 0.3s;
+
+}
+
+.home-card:hover .home-card-img {
+  transform: scale(1.02);
+}
+
+.lighten-img {
+  filter: brightness(1.25) saturate(0.7) hue-rotate(-5deg);
+  /* Make dark purple lighter and blend better with the theme */
+}
+
+.home-card-footer {
+  height: 20%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.home-card-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #59407f;
+  letter-spacing: 0.5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .home-main {
+    padding: 20px;
+    grid-template-columns: 1fr;
+    /* Force 1 column on mobile */
+  }
+
+  .home-card {
+    aspect-ratio: auto;
+    height: 300px;
+    /* Specific height for mobile cards */
+  }
+}
