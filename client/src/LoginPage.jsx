@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import emailjs from "@emailjs/browser";
 import "./LoginPage.css";
 import illustration from "./assets/signup-illustration.png";
+import Toast from "./components/Toast";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -12,7 +13,9 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // New: Toggle password visibility
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");  // New: Error state for general messages
+
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState(null);
 
   // Forgot Password Modal State
   const [showForgotModal, setShowForgotModal] = useState(false);
@@ -113,13 +116,15 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        alert("Password Reset Successful! Please Login.");
-        setShowForgotModal(false);
-        setForgotStep(1);
-        setForgotEmail("");
-        setForgotOtp("");
-        setNewPassword("");
-        setConfirmPassword("");
+        setToast({ message: "Password Reset Successful! Please Login.", type: "success" });
+        setTimeout(() => {
+          setShowForgotModal(false);
+          setForgotStep(1);
+          setForgotEmail("");
+          setForgotOtp("");
+          setNewPassword("");
+          setConfirmPassword("");
+        }, 2000);
       } else {
         setForgotMessage(data.message || "Reset Failed");
       }
@@ -137,7 +142,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     if (!email || !password) {
-      alert("Please enter both email and password.");
+      setToast({ message: "Please enter both email and password.", type: "warning" });
       return;
     }
 
@@ -158,15 +163,15 @@ export default function LoginPage() {
         // We save the user name so we can display it on the HomePage
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        alert(`Welcome back, ${data.user.name}!`);
-        navigate("/home");
+        setToast({ message: `Welcome back, ${data.user.name}!`, type: "success" });
+        setTimeout(() => navigate("/home"), 1500);
       } else {
         // 3. Failure: Show error message from backend (e.g., "Invalid credentials")
-        alert(data.message || "Login failed. Please check your credentials.");
+        setToast({ message: data.message || "Login failed. Please check your credentials.", type: "error" });
       }
     } catch (err) {
       console.error("Login error:", err);
-      alert("Server error. Please make sure your backend is running.");
+      setToast({ message: "Server error. Please make sure your backend is running.", type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -372,6 +377,13 @@ export default function LoginPage() {
             </form>
           </div>
         </div>
+      )}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
   );

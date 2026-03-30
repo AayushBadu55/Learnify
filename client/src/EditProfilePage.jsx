@@ -11,6 +11,7 @@ function EditProfilePage() {
         email: "",
         phone: "",
         profilePicture: "",
+        userType: "",
     });
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
@@ -28,6 +29,7 @@ function EditProfilePage() {
                     email: parsedUser.email || "",
                     phone: parsedUser.phone || "",
                     profilePicture: parsedUser.profilePicture || "",
+                    userType: (parsedUser.userType || "Student").toUpperCase(),
                 });
             } catch (err) {
                 console.error("Error parsing user data:", err);
@@ -171,6 +173,17 @@ function EditProfilePage() {
                                 type="email"
                                 name="email"
                                 value={profile.email}
+                                disabled
+                                className="form-input disabled"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Role (Read-only)</label>
+                            <input
+                                type="text"
+                                name="userType"
+                                value={profile.userType}
                                 disabled
                                 className="form-input disabled"
                             />

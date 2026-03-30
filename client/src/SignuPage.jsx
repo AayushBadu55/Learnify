@@ -5,6 +5,7 @@ import emailjs from "@emailjs/browser";
 import { useNavigate } from "react-router-dom";
 import "./SignupPage.css";
 import illustration from "/src/assets/signup-illustration.png";
+import Toast from "./components/Toast";
 
 export default function SignupPage() {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ export default function SignupPage() {
   const [generatedOtp, setGeneratedOtp] = useState("");
   const [userEnteredOtp, setUserEnteredOtp] = useState(["", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
+  const [toast, setToast] = useState(null); // { message, type }
 
   // --- CONFIGURATION ---
   const SERVICE_ID = "service_pbt1v7a";
@@ -48,7 +50,7 @@ export default function SignupPage() {
   // --- STEP 1: Check Email & Send OTP ---
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Basic validation
     const finalErrors = {};
     Object.keys(formData).forEach((key) => {
@@ -72,7 +74,7 @@ export default function SignupPage() {
 
       if (!checkRes.ok) {
         const data = await checkRes.json();
-        alert(data.message || "Email already exists!");
+        setToast({ message: data.message || "Email already exists!", type: "error" });
         setIsLoading(false);
         return;
       }
@@ -92,7 +94,7 @@ export default function SignupPage() {
       await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
       setStep("otp");
     } catch (err) {
-      alert("Error: " + (err.message || "Failed to process request"));
+      setToast({ message: "Error: " + (err.message || "Failed to process request"), type: "error" });
     } finally {
       setIsLoading(false);
     }
@@ -123,19 +125,19 @@ export default function SignupPage() {
         });
 
         if (regRes.ok) {
-          alert("Verification Successful! Welcome to Learnnify.");
-          navigate("/home"); 
+          setToast({ message: "Verification Successful! Please log in.", type: "success" });
+          setTimeout(() => navigate("/login"), 2000); // Delay for toast
         } else {
           const data = await regRes.json();
-          alert(data.message || "Registration failed.");
+          setToast({ message: data.message || "Registration failed.", type: "error" });
         }
       } catch (err) {
-        alert("Server Error. Please try again later.");
+        setToast({ message: "Server Error. Please try again later.", type: "error" });
       } finally {
         setIsLoading(false);
       }
     } else {
-      alert("Invalid OTP. Please check the code sent to your email.");
+      setToast({ message: "Invalid OTP. Please check the code sent to your email.", type: "error" });
     }
   };
 
@@ -202,7 +204,7 @@ export default function SignupPage() {
               <p className="su-bottom" style={{ marginBottom: "20px" }}>
                 Enter the 4-digit code sent to <br /> <b>{formData.email}</b>
               </p>
-              
+
               <div className="otp-input-area">
                 {userEnteredOtp.map((digit, i) => (
                   <input
@@ -220,7 +222,7 @@ export default function SignupPage() {
               <button className="su-btn" onClick={handleVerifyOtp} disabled={isLoading}>
                 {isLoading ? "Finalizing..." : "Verify & Register"}
               </button>
-              
+
               <p className="su-bottom" style={{ marginTop: "20px" }}>
                 Didn't get the code? <a href="#" onClick={() => setStep("signup")}>Change Email</a>
               </p>
@@ -228,6 +230,13 @@ export default function SignupPage() {
           )}
         </div>
       </div>
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

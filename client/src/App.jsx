@@ -8,6 +8,11 @@ import EditProfilePage from "./EditProfilePage.jsx";
 import AttendancePage from "./AttendancePage.jsx";
 import ContactPage from "./ContactPage.jsx";
 import ChatBotPage from "./ChatBotPage.jsx";
+import AnnouncementsPage from "./AnnouncementsPage.jsx";
+import ResourcesPage from "./ResourcesPage.jsx";
+import ManageAttendancePage from "./ManageAttendancePage.jsx";
+import AssignmentsPage from "./AssignmentsPage.jsx";
+import PollsPage from "./PollsPage.jsx";
 
 function App() {
   return (
@@ -20,8 +25,13 @@ function App() {
       <Route path="/chatbot" element={<ChatBotPage />} />
       <Route path="/class-routine" element={<ClassRoutinePage />} />
       <Route path="/attendance" element={<AttendancePage />} />
+      <Route path="/manage-attendance" element={<ManageAttendancePage />} />
+      <Route path="/assignments" element={<AssignmentsPage />} />
       <Route path="/edit-profile" element={<EditProfilePage />} />
+      <Route path="/announcements" element={<AnnouncementsPage />} />
+      <Route path="/resources" element={<ResourcesPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/polls" element={<PollsPage />} />
 
       {/* fallback */}
       <Route path="*" element={<Navigate to="/" />} />

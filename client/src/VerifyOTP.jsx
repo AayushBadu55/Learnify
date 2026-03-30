@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 import "./VerifyOTP.css";
-import illustration from "/src/assets/signup-illustration.png"; 
+import illustration from "/src/assets/signup-illustration.png";
+import Toast from "./components/Toast";
 
 // Added formData to props so we can save the user to MongoDB
 export default function VerifyOTP({ email, generatedOtp, formData }) {
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(59);
   const [isVerifying, setIsVerifying] = useState(false);
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate();
 
   const BACKEND_URL = "http://localhost:5000/api/auth";
@@ -27,7 +29,7 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
 
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
-    
+
     const newOtp = [...otp];
     newOtp[index] = element.value;
     setOtp(newOtp);
@@ -39,7 +41,7 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
 
   const handleSubmit = async () => {
     const otpValue = otp.join("");
-    
+
     // 1. Check if OTP matches
     if (otpValue === generatedOtp) {
       setIsVerifying(true);
@@ -48,23 +50,23 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
         const response = await fetch(`${BACKEND_URL}/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData), 
+          body: JSON.stringify(formData),
         });
 
         if (response.ok) {
-          alert("Verification Successful & Account Created!");
-          navigate("/home"); 
+          setToast({ message: "Verification Successful & Account Created!", type: "success" });
+          setTimeout(() => navigate("/home"), 2000);
         } else {
           const data = await response.json();
-          alert(data.message || "Registration failed. Please try again.");
+          setToast({ message: data.message || "Registration failed. Please try again.", type: "error" });
         }
       } catch (err) {
-        alert("Server error. Please check if your backend is running.");
+        setToast({ message: "Server error. Please check if your backend is running.", type: "error" });
       } finally {
         setIsVerifying(false);
       }
     } else {
-      alert("Invalid OTP. Please check the code sent to your email.");
+      setToast({ message: "Invalid OTP. Please check the code sent to your email.", type: "error" });
     }
   };
 
@@ -81,7 +83,7 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
         <div className="su-card otp-card">
           <h2 className="su-title">Enter OTP</h2>
           <p className="otp-sub">We sent a code to <b>{email}</b></p>
-          
+
           <div className="otp-input-area">
             {otp.map((data, index) => (
               <input
@@ -96,14 +98,14 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
             ))}
           </div>
 
-          <button 
-            className="su-btn" 
-            onClick={handleSubmit} 
+          <button
+            className="su-btn"
+            onClick={handleSubmit}
             disabled={isVerifying}
           >
             {isVerifying ? "Verifying..." : "Verify & Register"}
           </button>
-          
+
           <p className="su-bottom">
             Didn't receive code? {timer > 0 ? (
               <span>Resend in {timer}s</span>
@@ -114,5 +116,15 @@ export default function VerifyOTP({ email, generatedOtp, formData }) {
         </div>
       </div>
     </div>
+      {
+    toast && (
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast(null)}
+      />
+    )
+  }
+    </div >
   );
 }

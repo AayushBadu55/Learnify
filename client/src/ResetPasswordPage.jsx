@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./ForgotPasswordPage.css"; // Reuse styles
+import Toast from "./components/Toast";
 
 function ResetPasswordPage() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState("");
+    const [toast, setToast] = useState(null);
     const navigate = useNavigate();
     const location = useLocation();
     const { email, otp } = location.state || {}; // Need both key and code to reset
@@ -32,8 +34,8 @@ function ResetPasswordPage() {
             const data = await response.json();
 
             if (response.ok) {
-                alert("Password reset successfully! Please login with your new password.");
-                navigate("/login");
+                setToast({ message: "Password reset successfully! Please login with your new password.", type: "success" });
+                setTimeout(() => navigate("/login"), 2000);
             } else {
                 setMessage(data.message || "Failed to reset password");
             }
@@ -87,6 +89,16 @@ function ResetPasswordPage() {
                 </form>
             </div>
         </div>
+            {
+        toast && (
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(null)}
+            />
+        )
+    }
+        </div >
     );
 }
 

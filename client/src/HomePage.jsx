@@ -22,7 +22,7 @@ function HomePage() {
       <div style={{ height: '70px' }}></div>
 
       <main className="home-main">
-        <div className="home-card">
+        <div className="home-card" onClick={() => navigate("/announcements")}>
           <img src={announcementImg} alt="Announcement" className="home-card-img" />
           <div className="home-card-footer"><span className="home-card-text">Announcement</span></div>
         </div>
@@ -30,11 +30,11 @@ function HomePage() {
           <img src={routineImg} alt="Class Routines" className="home-card-img" />
           <div className="home-card-footer"><span className="home-card-text">Class Routines</span></div>
         </div>
-        <div className="home-card">
+        <div className="home-card" onClick={() => navigate("/assignments")}>
           <img src={assignmentsImg} alt="Assignments" className="home-card-img" />
           <div className="home-card-footer"><span className="home-card-text">Assignments</span></div>
         </div>
-        <div className="home-card">
+        <div className="home-card" onClick={() => navigate("/resources")}>
           <img src={resourcesImg} alt="Resources" className="home-card-img" />
           <div className="home-card-footer"><span className="home-card-text">Resources</span></div>
         </div>
@@ -45,6 +45,10 @@ function HomePage() {
         <div className="home-card" onClick={() => navigate("/attendance")}>
           <img src={pollsImg} alt="Attendance" className="home-card-img lighten-img" />
           <div className="home-card-footer"><span className="home-card-text">Attendance</span></div>
+        </div>
+        <div className="home-card" onClick={() => navigate("/polls")}>
+          <img src={pollsImg} alt="Polls" className="home-card-img lighten-img" />
+          <div className="home-card-footer"><span className="home-card-text">Polls</span></div>
         </div>
       </main>
 

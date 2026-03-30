@@ -1,260 +1,237 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import "./ClassRoutinePage.css";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import Nav from "./components/Nav";
 import Footer from "./components/Footer";
+import RoutineEditModal from "./components/RoutineEditModal.jsx";
+import "./ClassRoutinePage.css";
+import {
+  Calendar,
+  Edit3,
+  UploadCloud,
+  Download,
+  Clock,
+  MapPin,
+  User as UserIcon,
+  ChevronDown
+} from "lucide-react";
 
-function ClassRoutinePage() {
-  const navigate = useNavigate();
-  const [currentWeek, setCurrentWeek] = useState(new Date(2026, 0, 1));
+export default function ClassRoutinePage() {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || {});
+  const [routine, setRoutine] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const formatWeekDate = (date) => {
-    const startOfWeek = new Date(date);
-    const day = startOfWeek.getDay();
-    const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
-    const monday = new Date(startOfWeek.setDate(diff));
-    return monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-  };
+  useEffect(() => {
+    fetchRoutine();
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
 
-  const handlePreviousWeek = () => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentWeek(newDate);
-  };
-
-  const handleNextWeek = () => {
-    const newDate = new Date(currentWeek);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentWeek(newDate);
-  };
-
-  const timeSlots = [
-    "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
-    "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM"
-  ];
-
-  const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-  const today = new Date().getDay();
-  const todayIndex = today === 0 ? 4 : today - 1; // Convert Sunday=0 to Monday=0
-
-  const scheduleData = {
-    Monday: [
-      { time: "8:00 AM", subject: "Mathematics", instructor: "Dr. Smith", location: "Room 101", type: "Lecture" },
-      { time: "9:00 AM", subject: "Mathematics", instructor: "Dr. Smith", location: "Room 101", type: "Lecture" },
-      { time: "10:00 AM", subject: "Physics", instructor: "Prof. Johnson", location: "Lab 201", type: "Lab" },
-      { time: "11:00 AM", subject: "Physics", instructor: "Prof. Johnson", location: "Lab 201", type: "Lab" },
-      { time: "1:00 PM", subject: "Computer Science", instructor: "Ms. Davis", location: "Room 305", type: "Lecture" },
-      { time: "2:00 PM", subject: "Computer Science", instructor: "Ms. Davis", location: "Room 305", type: "Lecture" },
-    ],
-    Tuesday: [
-      { time: "9:00 AM", subject: "English Literature", instructor: "Mr. Wilson", location: "Room 102", type: "Lecture" },
-      { time: "10:00 AM", subject: "English Literature", instructor: "Mr. Wilson", location: "Room 102", type: "Lecture" },
-      { time: "11:00 AM", subject: "Chemistry", instructor: "Dr. Brown", location: "Lab 202", type: "Lab" },
-      { time: "2:00 PM", subject: "Mathematics", instructor: "Dr. Smith", location: "Room 101", type: "Tutorial" },
-      { time: "3:00 PM", subject: "Mathematics", instructor: "Dr. Smith", location: "Room 101", type: "Tutorial" },
-    ],
-    Wednesday: [
-      { time: "8:00 AM", subject: "Physics", instructor: "Prof. Johnson", location: "Room 103", type: "Lecture" },
-      { time: "9:00 AM", subject: "Physics", instructor: "Prof. Johnson", location: "Room 103", type: "Lecture" },
-      { time: "11:00 AM", subject: "Computer Science", instructor: "Ms. Davis", location: "Lab 301", type: "Lab" },
-      { time: "12:00 PM", subject: "Computer Science", instructor: "Ms. Davis", location: "Lab 301", type: "Lab" },
-      { time: "2:00 PM", subject: "Biology", instructor: "Dr. Green", location: "Room 104", type: "Lecture" },
-    ],
-    Thursday: [
-      { time: "9:00 AM", subject: "Chemistry", instructor: "Dr. Brown", location: "Room 105", type: "Lecture" },
-      { time: "10:00 AM", subject: "Chemistry", instructor: "Dr. Brown", location: "Room 105", type: "Lecture" },
-      { time: "12:00 PM", subject: "English Literature", instructor: "Mr. Wilson", location: "Room 102", type: "Tutorial" },
-      { time: "1:00 PM", subject: "Biology", instructor: "Dr. Green", location: "Lab 203", type: "Lab" },
-      { time: "2:00 PM", subject: "Biology", instructor: "Dr. Green", location: "Lab 203", type: "Lab" },
-    ],
-    Friday: [
-      { time: "8:00 AM", subject: "Mathematics", instructor: "Dr. Smith", location: "Room 101", type: "Lecture" },
-      { time: "10:00 AM", subject: "Physics", instructor: "Prof. Johnson", location: "Room 103", type: "Tutorial" },
-      { time: "11:00 AM", subject: "Computer Science", instructor: "Ms. Davis", location: "Room 305", type: "Lecture" },
-      { time: "1:00 PM", subject: "Chemistry", instructor: "Dr. Brown", location: "Room 105", type: "Tutorial" },
-    ],
-  };
-
-  const getClassTypeColor = (type) => {
-    switch (type) {
-      case "Lecture": return "#8545ff";
-      case "Lab": return "#b08ae2";
-      case "Tutorial": return "#999";
-      default: return "#8545ff";
+  const fetchRoutine = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("http://localhost:5000/api/routine");
+      setRoutine(res.data);
+    } catch (err) {
+      console.error("Error fetching routine:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getClassTypeBg = (type) => {
-    switch (type) {
-      case "Lecture": return "#8545ff";
-      case "Lab": return "#b08ae2";
-      case "Tutorial": return "#999";
-      default: return "#8545ff";
+  const handleSaveRoutine = async (updatedData) => {
+    try {
+      await axios.post("http://localhost:5000/api/routine", {
+        ...updatedData,
+        lastUpdatedBy: user.email
+      });
+      setShowEditModal(false);
+      fetchRoutine();
+    } catch (err) {
+      alert("Failed to save routine");
     }
   };
 
-  const getClassForTimeSlot = (day, time) => {
-    return scheduleData[day]?.find(cls => cls.time === time);
+  const isOngoing = (startTime, endTime, dayName) => {
+    const now = currentTime;
+    const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+    if (currentDay !== dayName) return false;
+
+    const parseTime = (timeStr) => {
+      const [time, modifier] = timeStr.split(' ');
+      let [hours, minutes] = time.split(':');
+      hours = parseInt(hours);
+      if (modifier === 'PM' && hours < 12) hours += 12;
+      if (modifier === 'AM' && hours === 12) hours = 0;
+      const d = new Date(now);
+      d.setHours(hours, parseInt(minutes || 0), 0, 0);
+      return d;
+    };
+
+    const start = parseTime(startTime);
+    const end = parseTime(endTime);
+    return now >= start && now <= end;
   };
 
-  const isMultiHourClass = (day, time) => {
-    const currentClass = getClassForTimeSlot(day, time);
-    if (!currentClass) return false;
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF('l', 'mm', 'a4');
 
-    const currentIndex = timeSlots.indexOf(time);
-    if (currentIndex === -1 || currentIndex === timeSlots.length - 1) return false;
+    // Add Title
+    doc.setFontSize(22);
+    doc.setTextColor(30, 41, 59);
+    doc.text(`Class Routine - ${routine.semester}`, 14, 20);
 
-    const nextTime = timeSlots[currentIndex + 1];
-    const nextClass = getClassForTimeSlot(day, nextTime);
+    doc.setFontSize(12);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}`, 14, 28);
 
-    return nextClass && nextClass.subject === currentClass.subject && nextClass.instructor === currentClass.instructor;
+    const tableHeaders = [["Time", ...days]];
+    const timeSlots = ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM"];
+
+    const tableBody = timeSlots.map((time, idx) => {
+      const timeRange = `${time} - ${idx < 4 ? ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM"][idx] : "3:00 PM"}`;
+
+      if (time === "11:00 AM") {
+        return [timeRange, { content: 'BREAK', colSpan: days.length, styles: { halign: 'center', fillColor: [248, 250, 252] } }];
+      }
+
+      const row = [timeRange];
+      days.forEach(day => {
+        const dayData = routine.days.find(d => d.name === day);
+        const slot = dayData?.slots.find(s => s.startTime === time);
+        if (slot) {
+          row.push(`${slot.subjectCode}\n${slot.subject}\n${slot.teacher}\n${slot.room}`);
+        } else {
+          row.push("");
+        }
+      });
+      return row;
+    });
+
+    autoTable(doc, {
+      startY: 35,
+      head: tableHeaders,
+      body: tableBody,
+      headStyles: { fillColor: [99, 102, 241], textColor: 255, fontSize: 10, halign: 'center' },
+      bodyStyles: { fontSize: 9, cellPadding: 5, valign: 'middle', halign: 'center' },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { top: 35 },
+      theme: 'grid'
+    });
+
+    doc.save(`Class_Routine_${routine.semester.replace(/\s+/g, '_')}.pdf`);
   };
 
-  const shouldSkipCell = (day, time) => {
-    const currentIndex = timeSlots.indexOf(time);
-    if (currentIndex === 0) return false;
+  if (loading) return <div className="loading-state">Loading Class Routine...</div>;
+  if (!routine) return <div className="error-state">No routine found. Click "Edit Routine" to create one.</div>;
 
-    const prevTime = timeSlots[currentIndex - 1];
-    return isMultiHourClass(day, prevTime);
-  };
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-  const classesToday = scheduleData[days[todayIndex]]?.length || 0;
-  const nextBreak = "12:00 PM";
-  const totalHours = 24;
-  const labSessions = Object.values(scheduleData).flat().filter(cls => cls.type === "Lab").length;
+  // Sort slots by time for each day
+  const sortedDays = routine.days.sort((a, b) => days.indexOf(a.name) - days.indexOf(b.name));
 
   return (
-    <div className="routine-root">
+    <div className="routine-page">
       <Nav />
-      {/* Spacer for fixed header */}
-      <div style={{ height: '70px' }}></div>
+      <div className="routine-container">
+        <header className="routine-header">
+          <div>
+            <h1>Class Routine</h1>
+            <p>View and manage the weekly class schedule.</p>
+          </div>
+        </header>
 
-
-      <main className="routine-main">
-        <div className="routine-date-selector-wrapper">
-          <div className="routine-date-selector">
-            <button className="date-arrow" onClick={handlePreviousWeek}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="15 18 9 12 15 6"></polyline>
-              </svg>
-            </button>
-            <span className="date-text">Week of {formatWeekDate(currentWeek)}</span>
-            <button className="date-arrow" onClick={handleNextWeek}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </button>
+        <div className="routine-actions-bar">
+          <div className="action-buttons">
+            {(user.userType === "CR" || user.userType === "cr") && (
+              <button className="edit-btn-orange" onClick={() => setShowEditModal(true)}>
+                <Edit3 size={18} /> Edit Routine
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="routine-title-section">
-          <h1 className="routine-title">Class Routine</h1>
-          <p className="routine-subtitle">Your weekly schedule at a glance</p>
-        </div>
-
-        <div className="routine-legend">
-          <div className="legend-item">
-            <div className="legend-dot" style={{ backgroundColor: "#8545ff" }}></div>
-            <span>Lecture</span>
+        <div className="routine-card">
+          <div className="card-header">
+            <Calendar size={20} className="header-icon" />
+            <h2>Routine Schedule</h2>
           </div>
-          <div className="legend-item">
-            <div className="legend-dot" style={{ backgroundColor: "#b08ae2" }}></div>
-            <span>Lab</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-dot" style={{ backgroundColor: "#999" }}></div>
-            <span>Tutorial</span>
-          </div>
-          <div className="legend-item">
-            <div className="legend-dot" style={{ backgroundColor: "#6b3ac7" }}></div>
-            <span>Current class</span>
-          </div>
-        </div>
 
-        <div className="routine-schedule-container">
-          <table className="routine-schedule-table">
-            <thead>
-              <tr>
-                <th className="time-column">Time</th>
-                {days.map((day, index) => (
-                  <th key={day} className={index === todayIndex ? "day-column today" : "day-column"}>
-                    {day}
-                    {index === todayIndex && <span className="today-badge">Today</span>}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {timeSlots.map((time, timeIndex) => (
-                <tr key={time}>
-                  <td className="time-cell">{time}</td>
-                  {days.map((day, dayIndex) => {
-                    const isToday = dayIndex === todayIndex;
-
-                    if (shouldSkipCell(day, time)) {
-                      return null;
-                    }
-
-                    const classItem = getClassForTimeSlot(day, time);
-                    const rowSpan = isMultiHourClass(day, time) ? 2 : 1;
-
-                    if (!classItem) {
-                      return (
-                        <td
-                          key={`${day}-${time}`}
-                          className={`schedule-cell ${isToday ? "today-cell" : ""}`}
-                        >
-                        </td>
-                      );
-                    }
-
-                    return (
-                      <td
-                        key={`${day}-${time}`}
-                        className={`schedule-cell class-block ${isToday ? "today-cell" : ""}`}
-                        rowSpan={rowSpan}
-                        style={{ backgroundColor: getClassTypeColor(classItem.type) }}
-                      >
-                        <div className="class-content">
-                          <div className="class-subject">{classItem.subject}</div>
-                          <div className="class-instructor">{classItem.instructor}</div>
-                          <div className="class-location">{classItem.location}</div>
-                          <div className="class-type-badge" style={{ backgroundColor: getClassTypeBg(classItem.type) }}>
-                            {classItem.type}
-                          </div>
-                        </div>
-                      </td>
-                    );
-                  })}
+          <div className="routine-table-wrapper">
+            <table className="routine-table">
+              <thead>
+                <tr>
+                  <th className="time-col">Time \ Day</th>
+                  {days.map(day => (
+                    <th key={day}>{day}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {/* We'll use a standardized set of time slots from seeded data or commonly used ones */}
+                {["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM"].map((time, idx) => {
+                  const isBreakTime = time === "11:00 AM";
+                  return (
+                    <tr key={idx}>
+                      <td className="time-label">
+                        {time} — {idx < 4 ? ["11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM"][idx] : "3:00 PM"}
+                      </td>
+                      {isBreakTime ? (
+                        <td className="break-cell" colSpan={days.length}>Break</td>
+                      ) : (
+                        days.map(day => {
+                          const dayData = routine.days.find(d => d.name === day);
+                          const slot = dayData?.slots.find(s => s.startTime === time);
 
-        <div className="routine-stats">
-          <div className="stat-card">
-            <div className="stat-value">{classesToday}</div>
-            <div className="stat-label">Classes Today</div>
+                          if (!slot) return <td key={day} className="empty-cell"></td>;
+
+                          const ongoing = isOngoing(slot.startTime, slot.endTime, day);
+
+                          return (
+                            <td key={day} className={`slot-cell`}>
+                              <div className={`class-card ${slot.color || 'blue'} ${ongoing ? 'ongoing' : ''}`}>
+                                <div className="card-top">
+                                  <span className="subject-code">{slot.subjectCode}</span>
+                                  {ongoing && <span className="ongoing-badge">Ongoing</span>}
+                                </div>
+                                <h4 className="subject-name">{slot.subject}</h4>
+                                <div className="card-meta">
+                                  <span><UserIcon size={12} /> {slot.teacher}</span>
+                                  <span><MapPin size={12} /> {slot.room}</span>
+                                </div>
+                              </div>
+                            </td>
+                          );
+                        })
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          <div className="stat-card">
-            <div className="stat-value">{nextBreak}</div>
-            <div className="stat-label">Next Break</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{totalHours}h/week</div>
-            <div className="stat-label">Total Hours</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{labSessions}</div>
-            <div className="stat-label">Lab Sessions</div>
-          </div>
+
+          <footer className="routine-card-footer">
+            <button className="download-pdf-btn" onClick={handleDownloadPDF}>
+              <Download size={18} /> Download Routine (PDF)
+            </button>
+            <div className="last-updated">
+              Last Updated by CR {routine.lastUpdatedBy?.split('@')[0] || "System"} — {new Date(routine.updatedAt).toLocaleDateString()} — {new Date(routine.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </footer>
         </div>
-      </main>
+      </div>
+      {showEditModal && (
+        <RoutineEditModal
+          routine={routine}
+          onClose={() => setShowEditModal(false)}
+          onSave={handleSaveRoutine}
+        />
+      )}
       <Footer />
     </div>
   );
 }
-
-export default ClassRoutinePage;
-
